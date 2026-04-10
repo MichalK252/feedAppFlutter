@@ -10,7 +10,12 @@ dependencies:
   animated_bottom_navigation_bar: ^1.4.0
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
   url_launcher: ^6.3.2
+  supabase_flutter: ^2.0.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -19,3 +24,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
+  assets:
+    - .env

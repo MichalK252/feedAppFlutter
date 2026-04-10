@@ -1,0 +1,11 @@
+{
+  "helloWorld": "Witaj świecie!",
+  "accountHeading": "Konto",
+  "passwordAndSecurity": "Hasło i zabezpieczenia",
+  "notifications": "Powiadomienia",
+  "appHeading": "Aplikacja",
+  "darkMode": "Motyw ciemny",
+  "languageSetting": "Język",
+  "logout": "Wyloguj się",
+  "homeScreenTitle": "Ekran główny"
+}

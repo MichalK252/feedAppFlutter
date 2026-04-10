@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:nav_bars/l10n/app_localizations.dart';
+import 'package:nav_bars/main.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
 
   final _url = Uri.parse('https://flutter.dev');
 
+  String _getLocaleName(Locale locale) {
+    switch (locale.languageCode) {
+      case 'en': return 'English';
+      case 'es': return 'Espanol';
+      case 'pl': return 'Polski';
+      default: return locale.languageCode;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 16),
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           child: Text(
-            'Konto',
-            style: TextStyle(
+            l10n.accountHeading,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.blueAccent,
             ),
@@ -23,7 +36,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.security),
-          title: const Text('Hasło i zabezpieczenia'),
+          title: Text(l10n.passwordAndSecurity),
           trailing: const Icon(Icons.chevron_right),
           onTap: () {
             _launchUrl(_url);
@@ -31,16 +44,16 @@ class SettingsScreen extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.notifications_none),
-          title: const Text('Powiadomienia'),
+          title: Text(l10n.notifications),
           trailing: const Icon(Icons.chevron_right),
           onTap: () {},
         ),
         const Divider(height: 32),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           child: Text(
-            'Aplikacja',
-            style: TextStyle(
+            l10n.appHeading,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.blueAccent,
             ),
@@ -48,22 +61,54 @@ class SettingsScreen extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.dark_mode_outlined),
-          title: const Text('Motyw ciemny'),
-          trailing: Switch(value: false, onChanged: (val) {}),
+          title: Text(l10n.darkMode),
+          trailing: ValueListenableBuilder<ThemeMode>(
+            valueListenable: appThemeNotifier,
+            builder: (context, themeMode, _) {
+              final isDark = themeMode == ThemeMode.dark ||
+                  (themeMode == ThemeMode.system &&
+                      MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+              return Switch(
+                value: isDark,
+                onChanged: (val) {
+                  appThemeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
+                },
+              );
+            },
+          ),
         ),
         ListTile(
           leading: const Icon(Icons.language),
-          title: const Text('Język'),
-          subtitle: const Text('Polski'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {},
+          title: Text(l10n.languageSetting),
+          subtitle: ValueListenableBuilder<Locale>(
+            valueListenable: appLocaleNotifier,
+            builder: (context, locale, _) {
+              return Text(_getLocaleName(locale));
+            },
+          ),
+          trailing: DropdownButton<Locale>(
+            value: appLocaleNotifier.value,
+            underline: const SizedBox(),
+            icon: const Icon(Icons.keyboard_arrow_down),
+            onChanged: (Locale? newLocale) {
+              if (newLocale != null) {
+                appLocaleNotifier.value = newLocale;
+              }
+            },
+            items: AppLocalizations.supportedLocales.map((Locale locale) {
+              return DropdownMenuItem(
+                value: locale,
+                child: Text(_getLocaleName(locale)),
+              );
+            }).toList(),
+          ),
         ),
         const Divider(height: 32),
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.redAccent),
-          title: const Text(
-            'Wyloguj się',
-            style: TextStyle(
+          title: Text(
+            l10n.logout,
+            style: const TextStyle(
               color: Colors.redAccent,
               fontWeight: FontWeight.bold,
             ),

@@ -1,0 +1,6 @@
+Analyzing nav_bars...                                           
+
+  error - Expected to find ';' - lib\main.dart:47:3 - expected_token
+  error - Expected to find ')' - lib\main.dart:48:1 - expected_token
+  error - Expected to find '}' - lib\main.dart:48:2 - expected_token
+

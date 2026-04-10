@@ -1,0 +1,11 @@
+{
+  "helloWorld": "Hello World!",
+  "accountHeading": "Account",
+  "passwordAndSecurity": "Password and Security",
+  "notifications": "Notifications",
+  "appHeading": "Application",
+  "darkMode": "Dark Theme",
+  "languageSetting": "Language",
+  "logout": "Log out",
+  "homeScreenTitle": "Home"
+}

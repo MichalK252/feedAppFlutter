@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nav_bars/screens/main_screen.dart';
 import 'package:nav_bars/screens/profile_screen.dart';
+import 'package:nav_bars/screens/feed_screen.dart';
 
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:nav_bars/l10n/app_localizations.dart';
@@ -25,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     _pageController = PageController(initialPage: currentPageIndex);
     _tabController = TabController(
-      length: 3,
+      length: 4,
       vsync: this,
       initialIndex: currentPageIndex,
     );
@@ -59,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: AnimatedBottomNavigationBar(
-        icons: const [Icons.person_outline, Icons.home, Icons.settings],
+        icons: const [Icons.person_outline, Icons.home, Icons.article, Icons.settings],
         activeIndex: currentPageIndex,
         gapLocation: GapLocation.none,
         notchSmoothness: NotchSmoothness.verySmoothEdge,
@@ -76,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen>
         children: <Widget>[
           const ProfileScreen(),
           const MainScreen(),
+          const FeedScreen(),
           SettingsScreen(),
         ],
       ),

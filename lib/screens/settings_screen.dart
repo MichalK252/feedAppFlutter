@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:nav_bars/l10n/app_localizations.dart';
 import 'package:nav_bars/main.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
@@ -113,8 +114,11 @@ class SettingsScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          onTap: () {
-            Navigator.pushReplacementNamed(context, '/login');
+          onTap: () async {
+            await Supabase.instance.client.auth.signOut();
+            if (context.mounted) {
+              Navigator.pushReplacementNamed(context, '/login');
+            }
           },
         ),
       ],

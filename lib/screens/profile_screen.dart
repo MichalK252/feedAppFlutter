@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = Supabase.instance.client.auth.currentUser;
+    final email = user?.email ?? 'Brak emaila';
+    final fullName = user?.userMetadata?['full_name'] as String? ?? 'Użytkownik';
+
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
@@ -14,16 +19,16 @@ class ProfileScreen extends StatelessWidget {
           child: Icon(Icons.person, size: 60, color: Colors.white),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Jan Kowalski',
+        Text(
+          fullName,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'jan.kowalski@example.com',
+        Text(
+          email,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
         const SizedBox(height: 32),
         OutlinedButton.icon(

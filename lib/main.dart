@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:nav_bars/screens/home_screen.dart';
 import 'package:nav_bars/screens/login_screen.dart';
+import 'package:nav_bars/screens/register_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nav_bars/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final ValueNotifier<Locale> appLocaleNotifier = ValueNotifier(const Locale('pl'));
 final ValueNotifier<ThemeMode> appThemeNotifier = ValueNotifier(ThemeMode.system);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Supabase.initialize(
-    url: 'https://ejtqfjbnbgwexjzjwjsx.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdHFmamJuYmd3ZXhqemp3anN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MTAxODQsImV4cCI6MjA5MTM4NjE4NH0.8TfdqLAVzmNsvwQEXjuIer7sY8Uov8_vGyKrE5qYwlc', // wklej z Settings → API
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
-  final session = Supabase.instance.client.auth.currentSession;
-  final String initialRoute = session != null ? '/home' : '/login';
+  final String initialRoute = '/login';
   runApp(MainApp(initialRoute: initialRoute));
 }
 
@@ -54,6 +56,7 @@ class MainApp extends StatelessWidget {
           initialRoute: initialRoute,
           routes: {
             '/login': (context) => const LoginScreen(),
+            '/register': (context) => const RegisterScreen(),
             '/home': (context) => const HomeScreen(),
           },
         );

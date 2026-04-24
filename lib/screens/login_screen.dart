@@ -31,9 +31,17 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } on AuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd: $e')),
+        );
+      }
     }
   }
 
@@ -92,6 +100,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Login',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pushNamed(context, '/register'),
+                  child: const Text('Zarejestruj się'),
                 ),
               ],
             ),

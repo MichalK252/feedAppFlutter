@@ -43,10 +43,10 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
-  Future<void> _deletePost(int id) async {
+  Future<void> _deletePost(dynamic id) async {
     try {
       await _supabase.from('posts').delete().eq('id', id);
-      _fetchPosts(); // Odśwież po usunięciu
+      _fetchPosts();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -61,18 +61,27 @@ class _FeedScreenState extends State<FeedScreen> {
     if (content.isEmpty) return;
     
     final user = _supabase.auth.currentUser;
-    final author = user?.email?.split('@')[0] ?? 'Anonim';
+    if (user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Musisz być zalogowany')),
+        );
+      }
+      return;
+    }
+    
+    final author = user.email?.split('@')[0] ?? 'Anonim';
 
     try {
       await _supabase.from('posts').insert({
-        'user_id': user?.id, // Podajemy jawnie
+        'user_id': user.id,
         'author': author,
         'content': content,
       });
       if (mounted) {
         _postController.clear();
         Navigator.of(context).pop();
-        _fetchPosts(); // Odśwież po dodaniu
+        _fetchPosts(); 
       }
     } catch (e) {
       if (mounted) {
@@ -130,10 +139,10 @@ class _FeedScreenState extends State<FeedScreen> {
               : ListView.builder(
                   padding: const EdgeInsets.only(top: 8, bottom: 80),
                   itemCount: _posts.length,
-                  itemBuilder: (context, index) {
-                    final post = _posts[index];
-              // Sprawdzamy, czy aktualnie zalogowany użytkownik jest autorem (po user_id)
-              final isMyPost = post['user_id'] != null && post['user_id'] == _supabase.auth.currentUser?.id;
+                   itemBuilder: (context, index) {
+                     final post = _posts[index];
+              final user = _supabase.auth.currentUser;
+              final isMyPost = user != null && post['user_id'] == user.id;
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

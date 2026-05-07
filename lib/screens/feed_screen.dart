@@ -11,6 +11,50 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   final _postController = TextEditingController();
   final _supabase = Supabase.instance.client;
+  List<Map<String, dynamic>> _posts = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPosts();
+  }
+
+  Future<void> _fetchPosts() async {
+    try {
+      final response = await _supabase
+          .from('posts')
+          .select()
+          .order('created_at', ascending: false);
+          
+      if (mounted) {
+        setState(() {
+          _posts = List<Map<String, dynamic>>.from(response);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd pobierania postów: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deletePost(int id) async {
+    try {
+      await _supabase.from('posts').delete().eq('id', id);
+      _fetchPosts(); // Odśwież po usunięciu
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd usuwania posta: $e')),
+        );
+      }
+    }
+  }
 
   Future<void> _addPost() async {
     final content = _postController.text.trim();
@@ -21,12 +65,14 @@ class _FeedScreenState extends State<FeedScreen> {
 
     try {
       await _supabase.from('posts').insert({
+        'user_id': user?.id, // Podajemy jawnie
         'author': author,
         'content': content,
       });
       if (mounted) {
         _postController.clear();
         Navigator.of(context).pop();
+        _fetchPosts(); // Odśwież po dodaniu
       }
     } catch (e) {
       if (mounted) {
@@ -77,30 +123,18 @@ class _FeedScreenState extends State<FeedScreen> {
         tooltip: 'Dodaj post',
         child: const Icon(Icons.add),
       ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _supabase
-            .from('posts')
-            .stream(primaryKey: ['id'])
-            .order('created_at', ascending: false),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Błąd pobierania postów: ${snapshot.error}'));
-          }
-          
-          final posts = snapshot.data ?? [];
-          
-          if (posts.isEmpty) {
-            return const Center(child: Text('Brak postów. Bądź pierwszy!'));
-          }
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _posts.isEmpty
+              ? const Center(child: Text('Brak postów. Bądź pierwszy!'))
+              : ListView.builder(
+                  padding: const EdgeInsets.only(top: 8, bottom: 80),
+                  itemCount: _posts.length,
+                  itemBuilder: (context, index) {
+                    final post = _posts[index];
+              // Sprawdzamy, czy aktualnie zalogowany użytkownik jest autorem (po user_id)
+              final isMyPost = post['user_id'] != null && post['user_id'] == _supabase.auth.currentUser?.id;
 
-          return ListView.builder(
-            padding: const EdgeInsets.only(top: 8, bottom: 80),
-            itemCount: posts.length,
-            itemBuilder: (context, index) {
-              final post = posts[index];
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 elevation: 2,
@@ -115,13 +149,20 @@ class _FeedScreenState extends State<FeedScreen> {
                             child: Icon(Icons.person),
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                            post['author'] ?? 'Nieznany',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                          Expanded(
+                            child: Text(
+                              post['author'] ?? 'Nieznany',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
+                          if (isMyPost)
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deletePost(post['id']),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -134,9 +175,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 ),
               );
             },
-          );
-        },
-      ),
+          ),
     );
   }
 }

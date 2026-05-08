@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nav_bars/screens/home_screen.dart';
 import 'package:nav_bars/screens/login_screen.dart';
 import 'package:nav_bars/screens/register_screen.dart';
+import 'package:nav_bars/theme/app_theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nav_bars/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,6 +19,13 @@ void main() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
+
+  // Make status bar transparent for immersive gradient backgrounds
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+  ));
+
   final String initialRoute = '/login';
   runApp(MainApp(initialRoute: initialRoute));
 }
@@ -35,31 +44,26 @@ class MainApp extends StatelessWidget {
           valueListenable: appThemeNotifier,
           builder: (context, themeMode, child) {
             return MaterialApp(
+              debugShowCheckedModeBanner: false,
               locale: locale,
               themeMode: themeMode,
-              theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.light),
-                useMaterial3: true,
-              ),
-              darkTheme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
-                useMaterial3: true,
-              ),
-              title: 'Localizations Sample App',
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              title: 'FeedApp',
               localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          initialRoute: initialRoute,
-          routes: {
-            '/login': (context) => const LoginScreen(),
-            '/register': (context) => const RegisterScreen(),
-            '/home': (context) => const HomeScreen(),
-          },
-        );
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: AppLocalizations.supportedLocales,
+              initialRoute: initialRoute,
+              routes: {
+                '/login': (context) => const LoginScreen(),
+                '/register': (context) => const RegisterScreen(),
+                '/home': (context) => const HomeScreen(),
+              },
+            );
           },
         );
       },

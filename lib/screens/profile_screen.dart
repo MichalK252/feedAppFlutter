@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nav_bars/theme/app_theme.dart';
+import 'package:nav_bars/screens/edit_profile_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
@@ -87,7 +93,15 @@ class ProfileScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right,
                 size: 20, color: Colors.grey),
             contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-            onTap: () {},
+            onTap: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const EditProfileScreen(),
+                ),
+              );
+              // Refresh to show updated name
+              if (mounted) setState(() {});
+            },
           ),
           ListTile(
             leading: const Icon(Icons.favorite_outline, size: 22),
